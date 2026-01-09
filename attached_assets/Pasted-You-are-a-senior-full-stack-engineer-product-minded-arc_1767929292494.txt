@@ -1,0 +1,90 @@
+You are a senior full-stack engineer + product-minded architect.
+
+Build an MVP web app called “Audit Collective OS” to facilitate a vetted group of smart contract auditors collaborating on audits, peer review, and reputation tracking.
+
+GOAL
+Ship a working MVP that supports:
+1) Auditor onboarding + vetting status
+2) Audit intake + assignment
+3) Findings creation + severity + review workflow
+4) Peer review + escalation
+5) Reputation points + basic metrics dashboard
+
+TECH STACK (choose these unless blocked)
+- Next.js (App Router) + TypeScript
+- Prisma ORM + SQLite (local) for speed
+- NextAuth (email magic link OR simple username/password for MVP)
+- TailwindCSS for UI
+- Zod for validation
+
+CORE ENTITIES (DB models)
+- User: id, name, email, role (admin/auditor/client), tier (observer/contributor/reviewer/lead/core), status (applied/probation/active/removed)
+- AuditorProfile: userId, bio, wallet(optional), proofLinks (array), skillsTags (array), notes
+- VettingApplication: id, userId, submittedAt, links (array), writeupText, score (0-100), decision (pending/accepted/rejected), reviewerUserId, comments
+- Audit: id, title, clientName, scopeText, repoUrl, chain, status (intake/in_progress/review/finalized), createdAt
+- AuditAssignment: id, auditId, userId, assignmentType (lead/reviewer), createdAt
+- Finding: id, auditId, title, description, severity (info/low/medium/high/critical), category, reproSteps, impact, recommendation, status (draft/needs_review/approved/rejected), createdByUserId, createdAt
+- FindingReview: id, findingId, reviewerUserId, decision (approve/reject/request_changes), notes, createdAt
+- ReputationEvent: id, userId, type (finding_accepted/finding_rejected/review_completed/false_positive_caught/escalation_resolved), points (+/- int), auditId(optional), findingId(optional), createdAt
+
+SCORING / REPUTATION RULES (implement simply)
+- finding_accepted: +5
+- finding_rejected: -3
+- review_completed: +2
+- false_positive_caught: +4
+- escalation_resolved: +3
+Maintain a computed “reputationScore” for each user (sum of ReputationEvent points).
+
+FEATURES / PAGES (must have)
+Public (no login needed):
+- Landing page describing the system briefly.
+
+Auth required:
+- /dashboard: shows your role, tier, reputationScore, and quick links
+- /audits: list audits, create audit (admin + client only), view audit detail
+- /audits/[id]: audit detail page with assignments and findings
+- /audits/[id]/assign: admin can assign lead + reviewer from active auditors
+- /audits/[id]/findings/new: auditor can create finding
+- /findings/[id]: view finding + reviews; reviewers can submit a review
+- /vetting: application form (for new auditors) + admin review queue
+- /admin/users: admin can change tier/status and view metrics
+- /metrics: leaderboard of auditors by reputationScore, plus counts of accepted/rejected findings
+
+WORKFLOW RULES (enforce)
+- Only users with status=active can be assigned to audits.
+- Only tier=reviewer or above can submit reviews.
+- A Finding becomes “approved” only after 1 review is approve. (MVP)
+- If reviewer rejects, set finding status=rejected and log a ReputationEvent for creator.
+- When review is submitted, log ReputationEvent for reviewer (review_completed).
+- When finding approved, log ReputationEvent for creator (finding_accepted).
+
+UI REQUIREMENTS
+- Clean, simple UI with Tailwind.
+- Use server actions or route handlers for mutations.
+- Show toasts on success/error.
+- Use minimal components; do not over-engineer.
+
+SEED DATA
+Include a Prisma seed:
+- 1 admin user
+- 3 auditors with different tiers/status
+- 1 sample audit with 2 assignments
+- 2 sample findings (one approved, one pending)
+
+DELIVERABLES
+1) Working app with run instructions: install, migrate, seed, dev server.
+2) Prisma schema + migrations.
+3) Minimal auth + role-based access.
+4) All pages above functioning end-to-end.
+5) README with how to use the workflow.
+
+CONSTRAINTS
+- Keep it MVP-simple.
+- Do not add payments, notifications, or complex RBAC.
+- Favor working code over perfect architecture.
+- Everything must run locally inside Replit.
+
+After building, output:
+- Folder structure overview
+- Key files (Prisma schema, seed, auth config, main pages)
+- Commands to run
